@@ -28,13 +28,11 @@
         <!-- 历史记录弹窗 -->
         <el-dialog title="论文修改历史" :visible.sync="dialogVisible" width="60%">
             <el-table :data="historyRecords" @row-click="handleHistoryClick" style="cursor: pointer">
-                <el-table-column prop="date" label="修改时间" width="180">
+                <el-table-column prop="modificationTime" label="修改时间" width="180">
                 </el-table-column>
-                <el-table-column prop="version" label="版本号" width="120">
+                <el-table-column prop="docId" label="论文Id">
                 </el-table-column>
-                <el-table-column prop="status" label="当前状态">
-                </el-table-column>
-                <el-table-column prop="reviewer" label="审核人">
+                <el-table-column prop="modificationWhat" label="修改标题" width="120">
                 </el-table-column>
             </el-table>
         </el-dialog>
@@ -45,6 +43,7 @@
 import { tclassmanagemt, deleteStudent } from "../../api/teacher/teacherclass.js";
 import { mapState } from 'vuex'
 import Cookies from 'js-cookie'
+import axios from "axios";
 
 export default {
     name: "StudentInfo",
@@ -54,21 +53,16 @@ export default {
             // 原有数据保持不变
             tableData: [],
             dialogVisible: false,
+            pagination: {         // 分页对象
+                page: 1,
+                total: 0
+            },
             historyRecords: [ // 示例数据
-                {
-                    date: '2023-07-20',
-                    version: 'v2.1',
-                    status: '已通过',
-                    reviewer: '王教授',
-                    paperId: '123'
-                },
-                {
-                    date: '2023-07-18',
-                    version: 'v2.0',
-                    status: '需修改',
-                    reviewer: '李教授',
-                    paperId: '123'
-                }
+            {
+                modificationTime: '',
+                docId: '',
+                modificationWhat: '',
+            }
             ],
             // 其他原有数据...
             tableData: [],
@@ -94,21 +88,60 @@ export default {
         this.listAllClass(this.page)
     },
     methods: {
-        handleViewProgress(row) {
+        async handleViewProgress(row) {
             this.dialogVisible = true;
-            // 这里应该调用接口获取该学生的论文修改历史
-            // 示例：
-            // getPaperHistory(row.userId).then(res => {
-            //     this.historyRecords = res.data;
-            // })
+
+            console.log(row)
+            try {
+                const response = await axios.post(
+                    'http://localhost:9251/api/modification/getModification',
+                    {
+                        stuId: row.userId,  //row.userid
+                        page: 1,
+                        pageSize: 10
+                    },
+                    {
+                        headers: { 'Content-Type': 'application/json' }
+                    }
+                );
+                console.log(response);
+                this.historyRecords = response.data || [];
+            //     historyRecords: [ // 示例数据
+            //     {
+            //         date: '2023-07-20',
+            //         version: 'v2.1',
+            //         status: '已通过',
+            //         reviewer: '王教授',
+            //         paperId: '123'
+            //     },
+            //     {
+            //         date: '2023-07-18',
+            //         version: 'v2.0',
+            //         status: '需修改',
+            //         reviewer: '李教授',
+            //         paperId: '123'
+            //     }
+            // ],
+                // this.pagination.total = response.data.data.total || 0;
+            } catch (error) {
+                console.error('请求异常:', error);
+                this.$message.error('数据加载失败');
+            }
         },
 
         handleHistoryClick(record) {
-            // 跳转到论文详情页，假设路由为/paper-detail/:id
+            // 跳转到论文详情页
+            console.log('点击了记录：', record);
+            localStorage.setItem('docModificationrecord', JSON.stringify(record));
+            localStorage.setItem('docId', record.docId);
+            const savedRecord = JSON.parse(localStorage.getItem('docModificationrecord'));
             this.$router.push({
-                path: `/paper-detail/${record.paperId}`,
-                query: { version: record.version }
-            });
+                name: 'Detail',
+                query: {
+                    type: "试题"
+                },
+                data1: 'test'
+            })
         },
         handleDelete(index, row) {
             this.param.userId = row.userId

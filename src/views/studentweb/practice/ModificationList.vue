@@ -11,7 +11,7 @@
             </el-table-column>
             <el-table-column label="操作" width="160" fixed="right">
                 <template slot-scope="scope">
-                    <el-button @click="handleDetail(scope.row.id)" type="primary" size="small">
+                    <el-button @click="handleDetail(scope.row)" type="primary" size="small">
                         详情
                     </el-button>
                 </template>
@@ -57,6 +57,11 @@ export default {
                         headers: { 'Content-Type': 'application/json' }
                     }
                 );
+                console.log({
+                        stuId: Number(Cookies.get('userId')),
+                        page: this.pagination.page,
+                        pageSize: this.pagination.pageSize
+                    })
                 console.log(response);
                 this.modificationList = response.data || [];
                 // this.pagination.total = response.data.data.total || 0;
@@ -67,9 +72,9 @@ export default {
         },
 
         // 查看详情
-        handleDetail(id) {
-            localStorage.setItem('modificationId', id);
-            console.log(localStorage.getItem('modificationId'));
+        handleDetail(row) {
+            console.log(row);
+            localStorage.setItem('modification', JSON.stringify(row));
             this.$router.push({
                 name: 'ModificationCompare',
             });
