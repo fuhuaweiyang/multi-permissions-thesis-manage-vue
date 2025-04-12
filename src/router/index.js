@@ -10,15 +10,12 @@ import ClassManagement from '../views/teacher/classmanagement/ClassManagement.vu
 import CourseManagement from '../views/teacher/coursemanagement/CourseManagement.vue'
 import PersonalInfo from '../views/teacher/personalInfo/PersonalInfo.vue'
 import NoticeManagement from '../views/teacher/NoticeManagement.vue'
-import StudentContainWeb from '../views/studentweb/contain/StudentContainWeb.vue'
-import NoHomeWork from '../views/studentweb/homeworkmanagement/checkhomework/NoHomeWork.vue'
-import AskAndAnswer from '../views/studentweb/askandanswer/AskAndAnswer.vue'
-import OnLineLearn from '../views/studentweb/onlinelearn/OnLineLearn.vue'
-import EssentiaInfo from '../views/studentweb/essentialinformation/EssentiaInfo.vue'
+import StudentContainWeb from '../views/student/contain/StudentContainWeb.vue'
+import AskAndAnswer from '../views/student/askandanswer/AskAndAnswer.vue'
+import EssentiaInfo from '../views/student/EssentiaInfo.vue'
 import StudentManagement from '../views/student/StudentManagement.vue'
 import AdminManagement from '../views/admin/AdminManagement.vue'
-import MarkDown from '../views/studentweb/markdown/MarkDown.vue'
-import DetaliCourse from '../views/studentweb/askandanswer/DetaliCourse.vue'
+import DetaliCourse from '../views/student/askandanswer/DetaliCourse.vue'
 import home from '../views/student/home.vue'
 import AdminStudentManagement from '../views/admin/studentmanagement/StudentManagement.vue'
 import TeacherManagement from '../views/admin/teacherm/TeacherManagement.vue'
@@ -28,7 +25,6 @@ import AdminPersonalInfo from '../views/admin/personalInfo/PersonalInfo.vue'
 import TeacherPersonalInfo from '../views/admin/personalInfo/PersonalInfo.vue'
 import ApplicantHistory from '../views/student/ApplicantHistory.vue'
 import TeacherApplicant from '../views/teacher/TeacherApplicant.vue'
-import DetailOnlineWeb from '../views/studentweb/onlinelearn/DetailOnlineWeb.vue'
 import PracticeDetail from '../views/student/practice/ModificationList.vue'
 import MarkDownNotHomeWork from '../views/student/MarkDownNotHomeWork.vue'
 import HomeworkDetail from '../views/admin/adminhomework/HomeworkDetail.vue'
@@ -38,7 +34,6 @@ import Detail from '../views/teacher/Detail.vue'
 import StudentDetail from '../views/teacher/Detail.vue'
 import PDetail from '../views/teacher/personalInfo/PDetail.vue'
 import Video from '../views/teacher/video/Video.vue'
-import teacherVideo from '../views/studentweb/onlinelearn/DetailOnlineWeb.vue'
 import ClassManagementAdmin from '../views/admin/classmanagement/ClassManagement.vue'
 import Subject from '../views/admin/subject/Subject.vue'
 import Point from '../views/student/Point.vue'
@@ -78,15 +73,7 @@ const routes = [
         meta: {
             requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
-    }, 
-    {
-        path: '/detailonlineweb',
-        name: 'DetailOnlineWeb',
-        component: DetailOnlineWeb,
-        meta: {
-            requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-        },
-    }, {
+    },  {
         path: '/TestHomeWork',
         name: 'TestHomeWork',
         component: TestHomeWork,
@@ -109,14 +96,6 @@ const routes = [
             requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
     },
-    {
-        path: '/markdown',
-        name: 'MarkDown',
-        component: MarkDown,
-        meta: {
-            requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-        },
-    }, 
     {
         path: '/homeworkdetail',
         name: 'HomeworkDetail',
@@ -242,27 +221,10 @@ const routes = [
                     requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
                 },
             },
-
-            {
-                path: '/nohomework',
-                name: 'NoHomeWork',
-                component: NoHomeWork,
-                meta: {
-                    requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-                },
-            },
             {
                 path: '/askandanswer',
                 name: 'AskAndAnswer',
                 component: AskAndAnswer,
-                meta: {
-                    requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-                },
-            },
-            {
-                path: '/onlinelearn',
-                name: 'OnLineLearn',
-                component: OnLineLearn,
                 meta: {
                     requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
                 },
@@ -358,14 +320,6 @@ const routes = [
                 path: '/video',
                 name: 'Video',
                 component: Video,
-                meta: {
-                    requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-                },
-            },
-            {
-                path: '/teachervideo',
-                name: 'teacherVideo',
-                component: teacherVideo,
                 meta: {
                     requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
                 },

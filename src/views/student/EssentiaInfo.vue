@@ -69,9 +69,9 @@
 </template>
 
 <script>
-    import {personal} from '../../../api/personal.js'
+    import {personal} from '../../api/personal.js'
     import Cookies from 'js-cookie'
-    import {listAllClass} from "../../../api/alertpersonal";
+    import {listAllClass} from "../../api/alertpersonal";
     export default {
         name: "EssentiaInfo",
         data(){
