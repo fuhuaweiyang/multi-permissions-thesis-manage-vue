@@ -17,7 +17,7 @@
                 </el-menu-item>
                 <el-menu-item index="/scoremanagment">
                     <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>
-                    <span slot="title" style="font-size: 20px;"> 试题管理</span>
+                    <span slot="title" style="font-size: 20px;"> 论文批改</span>
                 </el-menu-item>
                 <el-menu-item index="/classmanagement">
                     <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>

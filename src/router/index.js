@@ -2,53 +2,47 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '../views/login/Login.vue'
 import TeacherContainer from '../views/container/TeacherContainer.vue'
-import StudentInfo from '../views/studentInfo/StudentInfo.vue'
+import StudentInfo from '../views/teacher/StudentInfo.vue'
 import AdminHome from '../views/admin/AdminHome.vue'
-import TeacherHome from '../views/container/TeacherHome.vue'
-import ScoreManagment from '../views/scoremanagement/ScoreManagment.vue'
-import ClassManagement from '../views/classmanagement/ClassManagement.vue'
-import SubjectManagement from '../views/subjectmanagement/SubjectManagement.vue'
-import CourseManagement from '../views/coursemanagement/CourseManagement.vue'
-import PersonalInfo from '../views/personalInfo/PersonalInfo.vue'
-import NoticeManagement from '../views/noticemanagement/NoticeManagement.vue'
+import TeacherHome from '../views/teacher/TeacherHome.vue'
+import ScoreManagment from '../views/teacher/ScoreManagment.vue'
+import ClassManagement from '../views/teacher/classmanagement/ClassManagement.vue'
+import CourseManagement from '../views/teacher/coursemanagement/CourseManagement.vue'
+import PersonalInfo from '../views/teacher/personalInfo/PersonalInfo.vue'
+import NoticeManagement from '../views/teacher/NoticeManagement.vue'
 import StudentContainWeb from '../views/studentweb/contain/StudentContainWeb.vue'
 import NoHomeWork from '../views/studentweb/homeworkmanagement/checkhomework/NoHomeWork.vue'
 import AskAndAnswer from '../views/studentweb/askandanswer/AskAndAnswer.vue'
 import OnLineLearn from '../views/studentweb/onlinelearn/OnLineLearn.vue'
 import EssentiaInfo from '../views/studentweb/essentialinformation/EssentiaInfo.vue'
-import StudentManagement from '../views/studentweb/studentmanagement/StudentManagement.vue'
+import StudentManagement from '../views/student/StudentManagement.vue'
 import AdminManagement from '../views/admin/AdminManagement.vue'
 import MarkDown from '../views/studentweb/markdown/MarkDown.vue'
 import DetaliCourse from '../views/studentweb/askandanswer/DetaliCourse.vue'
-import home from '../views/studentweb/contain/home.vue'
+import home from '../views/student/home.vue'
 import AdminStudentManagement from '../views/admin/studentmanagement/StudentManagement.vue'
 import TeacherManagement from '../views/admin/teacherm/TeacherManagement.vue'
 import AdminHomeWork from '../views/admin/adminhomework/AdminHomeWork.vue'
 import TestManagement from '../views/admin/testmanagement/TestManagement.vue'
-import KnowledgePoints from '../views/admin/knowledgepoints/KnowledgePoints.vue'
 import AdminPersonalInfo from '../views/admin/personalInfo/PersonalInfo.vue'
 import TeacherPersonalInfo from '../views/admin/personalInfo/PersonalInfo.vue'
-import ApplicantHistory from '../views/studentweb/studentmanagement/ApplicantHistory.vue'
-import TeacherApplicant from '../views/teacherapplicant/TeacherApplicant.vue'
+import ApplicantHistory from '../views/student/ApplicantHistory.vue'
+import TeacherApplicant from '../views/teacher/TeacherApplicant.vue'
 import DetailOnlineWeb from '../views/studentweb/onlinelearn/DetailOnlineWeb.vue'
-import PracticeDetail from '../views/studentweb/practice/ModificationList.vue'
-import MarkDownNotHomeWork from '../views/studentweb/homeworkmanagement/MarkDownNotHomeWork.vue'
+import PracticeDetail from '../views/student/practice/ModificationList.vue'
+import MarkDownNotHomeWork from '../views/student/MarkDownNotHomeWork.vue'
 import HomeworkDetail from '../views/admin/adminhomework/HomeworkDetail.vue'
 import TestHomeWork from '../views/admin/testmanagement/TestHomeWork.vue'
 import KnowDetail from '../views/admin/knowledgepoints/KnowDetail.vue'
-import Detail from '../views/scoremanagement/Detail.vue'
-import StudentDetail from '../views/scoremanagement/Detail.vue'
-import DetailMark from '../views/scoremanagement/DetailMark.vue'
-import NotHomework from '../views/scoremanagement/NotHomework.vue'
-import PDetail from '../views/personalInfo/PDetail.vue'
-import Video from '../views/video/Video.vue'
+import Detail from '../views/teacher/Detail.vue'
+import StudentDetail from '../views/teacher/Detail.vue'
+import PDetail from '../views/teacher/personalInfo/PDetail.vue'
+import Video from '../views/teacher/video/Video.vue'
 import teacherVideo from '../views/studentweb/onlinelearn/DetailOnlineWeb.vue'
-import DoHomeWork from '../views/classmanagement/DoHomeWork.vue'
-import NotHomeWork from '../views/classmanagement/NotHomeWork.vue'
 import ClassManagementAdmin from '../views/admin/classmanagement/ClassManagement.vue'
 import Subject from '../views/admin/subject/Subject.vue'
-import Point from '../views/studentweb/point/Point.vue'
-import ModificationCompare from '../views/studentweb/practice/ModificationCompare.vue'
+import Point from '../views/student/Point.vue'
+import ModificationCompare from '../views/student/practice/ModificationCompare.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -70,14 +64,6 @@ const routes = [
         },
     }, 
     {
-        path: '/nothomework',
-        name: 'NotHomework',
-        component: NotHomework,
-        meta: {
-            requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-        },
-    },
-    {
         path: '/pdetailteacher',
         name: 'PDetail',
         component: PDetail,
@@ -92,14 +78,7 @@ const routes = [
         meta: {
             requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
-    }, {
-        path: '/detailmark',
-        name: 'DetailMark',
-        component: DetailMark,
-        meta: {
-            requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-        },
-    },
+    }, 
     {
         path: '/detailonlineweb',
         name: 'DetailOnlineWeb',
@@ -223,14 +202,6 @@ const routes = [
                 path: '/testmanagement',
                 name: 'TestManagement',
                 component: TestManagement,
-                meta: {
-                    requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-                },
-            },
-            {
-                path: '/knowledgepoints',
-                name: 'KnowledgePoints',
-                component: KnowledgePoints,
                 meta: {
                     requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
                 },
@@ -375,23 +346,6 @@ const routes = [
                     requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
                 },
             },
-
-            {
-                path: '/dohomework',
-                name: 'DoHomeWork',
-                component: DoHomeWork,
-                meta: {
-                    requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-                },
-            },
-            {
-                path: '/nothomework',
-                name: 'NotHomeWork',
-                component: NotHomeWork,
-                meta: {
-                    requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-                },
-            },
             {
                 path: '/teacherpersonalinfo',
                 name: 'TeacherPersonalInfo',
@@ -433,14 +387,6 @@ const routes = [
                 },
             },
             {
-                path: '/subjectmanagement',
-                name: 'SubjectManagement',
-                component: SubjectManagement,
-                meta: {
-                    requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-                },
-            },
-            {
                 path: '/coursemanagement',
                 name: 'CourseManagement',
                 component: CourseManagement,
@@ -453,7 +399,7 @@ const routes = [
                 name: 'NoticeManagement',
                 component: NoticeManagement,
                 meta: {
-                    requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
+                    requireAuth: false,  // 添加该字段，表示进入这个路由是需要登录的
                 },
             },
             {

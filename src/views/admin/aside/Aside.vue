@@ -31,10 +31,6 @@
                     <i class="el-icon-s-opportunity" style="font-size: 24px;color: white;"></i>
                     <span slot="title" style="font-size: 20px;"> 试题信息管理</span>
                 </el-menu-item>
-                <el-menu-item index="/knowledgepoints">
-                    <i class="el-icon-s-release" style="font-size: 24px;color: white;"></i>
-                    <span slot="title" style="font-size: 20px;"> 知识点管理</span>
-                </el-menu-item>
                 <el-menu-item index="/adminpersonalinfo">
                     <i class="el-icon-user" style="font-size: 24px;color: white;"></i>
                     <span slot="title" style="font-size: 20px;"> 个人信息</span>
