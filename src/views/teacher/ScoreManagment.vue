@@ -73,7 +73,6 @@
 <script>
 import { listAllScore, listNotHomework, listHomework } from '../../api/score'
 import Cookies from 'js-cookie'
-import { quclass } from "../../api/admin/queryclass";
 export default {
     name: "ScoreManagment",
     data() {

@@ -13,7 +13,7 @@
                 </el-menu-item>
                 <el-menu-item index="/teacherapplicant">
                     <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>
-                    <span slot="title" style="font-size: 20px;"> 加入班级审核</span>
+                    <span slot="title" style="font-size: 20px;"> 申请论文审核</span>
                 </el-menu-item>
                 <el-menu-item index="/scoremanagment">
                     <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>
@@ -29,11 +29,7 @@
                 </el-menu-item>
                 <el-menu-item index="/personalinfo">
                     <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>
-                    <span slot="title" style="font-size: 20px;"> 知识点补充</span>
-                </el-menu-item>
-                <el-menu-item index="/video">
-                    <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>
-                    <span slot="title" style="font-size: 20px;"> 视频管理</span>
+                    <span slot="title" style="font-size: 20px;"> 论文题目发布</span>
                 </el-menu-item>
                 <el-menu-item index="/teacherpersonalinfo">
                     <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>

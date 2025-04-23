@@ -24,13 +24,13 @@
                     <i class="iconfont icon-r-home" style="color: white;font-size: 22px;"></i>
                     首页
                 </el-menu-item>
-                <el-menu-item index="/markdownnothomework">
+                <el-menu-item index="/thesisOnline">
                     <i class="iconfont icon-r-team" style="color: white;font-size: 26px;"></i> 论文在线</el-menu-item>
                 <!-- <el-menu-item index="/onlinelearn">
                     <i class="iconfont icon-r-team" style="color: white;font-size: 26px;"></i> 论文课程指导</el-menu-item> -->
                 <el-menu-item index="/studentmanagement">
                     <i class="iconfont icon-r-building" style="color: white;font-size: 22px;"></i> 班级列表</el-menu-item>
-                <el-menu-item index="/practicedetail">
+                <el-menu-item index="/modificationList">
                     <i class="iconfont icon-r-find" style="color: white;font-size: 22px;"></i>论文提交记录</el-menu-item>
                 <el-menu-item index="/essentiainfo">
                     <i class="iconfont icon-r-user2" style="color: white;font-size: 22px;"></i> 基本信息</el-menu-item>

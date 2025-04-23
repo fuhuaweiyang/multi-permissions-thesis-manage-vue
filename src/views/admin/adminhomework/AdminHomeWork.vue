@@ -1,154 +1,206 @@
 <template>
-    <div>
-        <el-table :data="TeacherData" :default-sort="{ prop: 'date', order: 'descending' }" style="width: 100%">
-            <el-table-column sortable fixed prop="title" label="论文标题">
-            </el-table-column>
-            <el-table-column prop="userName" label="发布教师" width="180">
-            </el-table-column>
-            <el-table-column prop="className" label="班级" width="100">
-            </el-table-column>
-            <el-table-column prop="subjectName" label="科目">
-            </el-table-column>
-            <el-table-column prop="createTime" label="发布时间">
-            </el-table-column>
-
-            <el-table-column label="操作" width="260" fixed="right">
-                <template slot-scope="scope">
-                    <el-button type="primary" @click="handleEdit(scope.$index, scope.row)"> 查看</el-button>
-                    <el-button type="danger" @click="handleDelete(scope.$index, scope.row)"> 删除</el-button>
-                    <el-button @click="uploadFile()">上传文件</el-button>
+    <!-- 论文题目选择页面 -->
+    <div style="padding: 20px;">
+        <el-table :data="paginatedTheses" style="width: 100%;">
+            <el-table-column prop="title" label="论文标题" />
+            <el-table-column prop="content" label="论文要求" width="100" />
+            <el-table-column prop="teacherName" label="创建人" width="120" />
+            <el-table-column prop="createTime" label="创建时间" width="180" />
+            <el-table-column label="操作" width="120">
+                <template #default="scope">
+                    <el-button size="mini" type="primary" @click="confirmApplyThesis(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
-        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="page.pageNum"
-            :page-sizes="[10, 20, 30, 40]" :page-size="page.pageSize" layout="total, sizes, prev, pager, next, jumper"
-            :total="TeacherData.length">
-        </el-pagination>
-        <!-- <el-upload class="upload-demo" drag action="http://localhost:9251/api/docs/upload" multiple>
-            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-                Drop file here or <em>click to upload</em>
-            </div>
-            <template #tip>
-                <div class="el-upload__tip">
-                    doc files with a size less than 500kb
-                </div>
-            </template>
-        </el-upload> -->
+
+        <div style="text-align: right; margin-top: 20px;">
+            <el-pagination background layout="prev, pager, next" :total="thesisList.length" :page-size="pageSize"
+                :current-page="currentPage" @current-change="handlePageChange" />
+        </div>
     </div>
 </template>
-
+  
 <script>
-import { ahomework, deleteHomewor } from "../../../api/admin/adminhomework.js";
+import axios from 'axios';
+import jsCookie from 'js-cookie';
 
 export default {
-    name: "AdminHomeWork",
     data() {
         return {
-            TeacherData: [],
-            page: {
-                page: 1, //初始页
-                pageSize: 10, //    每页的数据
-
+            homeworkData: {
+                title: '',
+                content: ''
             },
-            param: {
-                id: '',
-            }
+            fileList: [],
+            thesisList: [], // 全部论文数据
+            currentPage: 1,
+            pageSize: 5,
+        };
+    },
+    computed: {
+        paginatedTheses() {
+            const start = (this.currentPage - 1) * this.pageSize;
+            const end = this.currentPage * this.pageSize;
+            return this.thesisList.slice(start, end);
         }
     },
-
     created() {
-        this.work(this.page)
+        this.loadThesisList();
     },
     methods: {
-        handleEdit(index, row) {
-            this.$router.push({
-                name: 'HomeworkDetail',
-                params: {
-                    data1: row.content
-                }
-            })
-        },
-        handleDelete(index, row) {
-            this.param.id = row.id;
-            deleteHomewor(this.param).then(resp => {
-                if (resp.data.code == 200) {
-                    this.$message({
-                        message: '删除成功 ',
-                        type: 'success'
-                    });
-                    this.work(this.page)
+        // 提交论文申请
+        async confirmApplyThesis(thesis) {
+            console.log(thesis)
+            try {
+                await this.$confirm(
+                    `确定要删除题目「${thesis.title}」吗？`,
+                    '确认删除',
+                    {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning',
+                    }
+                );
+
+                // 发送申请请求
+                const res = await axios.post('http://localhost:9251/api/study/thesis/apply/' + thesis.id + "/" + jsCookie.get('userId'));
+                console.log(res);
+                if (res.data.code == 200) {
+                    this.$message.success('删除成功');
+                    // 可选：刷新列表或禁用该题目
                 } else {
-                    this.$message.error('删除失败');
+                    this.$message.error(res.data.message || '删除失败');
                 }
-            })
-        },
-        handleSizeChange(size) {
-            this.page.pageSize = size;
-            this.work(this.page)
-            // console.log(this.pageSize,'888')
-            console.log(`每页 ${size} 条`);
-        },
-        handleCurrentChange(pageNum) {
-            this.page.pageNum = pageNum;
-            this.work(this.page)
-            console.log(`当前页: ${pageNum}`);
+
+            } catch (err) {
+                if (err !== 'cancel') {
+                    this.$message.error('删除已取消或发生错误');
+                }
+            }
         },
 
-        work(page) {
-            ahomework(page).then(resp => {
-                this.TeacherData = resp.data.resultData.data
-                console.log(resp, '123')
-                // state.ClassData=resp.data.data.records
-                // this.$store.dispatch('classAction',this.ClassData)
-            })
+        goOthers() {
+            // 你的返回逻辑
+            this.$message.info("返回上一页");
         },
-        async uploadFile() {
-            // 获取文件输入元素（需在模板中设置 ref="fileInput"）
-            const fileInput = this.$refs.fileInput;
-            const file = fileInput.files[0];
 
-            if (!file) {
-                this.$message.error('请先选择文件！');
+        handlePageChange(page) {
+            this.currentPage = page;
+        },
+
+        async loadThesisList() {
+            try {
+                const res = await axios.get('http://localhost:9251/api/study/thesis/list'); // 假设这是获取论文的接口
+                console.log(res);
+                this.thesisList = res.data.resultData.data || [];
+                console.log(res);
+            } catch (e) {
+                this.$message.error('加载论文题目失败');
+            }
+        },
+
+        selectThesis(thesis) {
+            this.$message.success(`已选择题目：${thesis.title}`);
+            // 设置题目内容到编辑区（可选）
+            this.homeworkData.title = thesis.title;
+            this.homeworkData.content = thesis.content;
+            this.ifHaveThesis = false;
+        },
+
+        handleFileChange(file, fileList) {
+            const validTypes = ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            const isDoc = validTypes.includes(file.raw.type) ||
+                file.raw.name.endsWith('.doc') ||
+                file.raw.name.endsWith('.docx');
+            const isLt500KB = file.raw.size / 1024 < 500;
+
+            if (!isDoc) {
+                this.$message.error('只能上传doc/docx格式文件');
+                return false;
+            }
+            if (!isLt500KB) {
+                this.$message.error('文件大小不能超过500KB');
+                return false;
+            }
+
+            this.fileList = fileList;
+            return false;
+        },
+
+        handleFileRemove(file, fileList) {
+            this.fileList = fileList;
+        },
+
+        async submit() {
+            if (!this.homeworkData.title.trim()) {
+                this.$message.error('请输入标题');
+                return;
+            }
+            if (!this.homeworkData.content.trim()) {
+                this.$message.error('请输入内容');
+                return;
+            }
+            if (this.fileList.length === 0) {
+                this.$message.error('请选择要上传的文件');
                 return;
             }
 
-            // 验证文件类型和大小（示例）
-            const maxSize = 10 * 1024 * 1024; // 10MB
-            if (file.size > maxSize) {
-                this.$message.error('文件大小超过限制！');
-                return;
-            }
-            if (!file.type.startsWith('image/')) { // 按需调整类型
-                this.$message.error('仅支持图片文件！');
-                return;
-            }
-
-            // 构建 FormData
             const formData = new FormData();
-            formData.append('file', file); // 字段名需与后端一致
+            formData.append('title', this.homeworkData.title);
+            formData.append('content', this.homeworkData.content);
+            formData.append('userId', jsCookie.get('userId'));
+            this.fileList.forEach(file => {
+                formData.append('files', file.raw);
+            });
 
             try {
-                // 发送请求（假设已封装上传接口，需自行替换为实际接口）
-                const response = await this.$http.post('/api/upload', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
+                const response = await axios.post('http://localhost:9251/api/docs/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
                 });
 
-                // 根据后端返回结构处理响应
-                if (response.data.code === 200) {
-                    this.$message.success('上传成功');
-                    this.work(this.page); // 刷新列表数据
-                } else {
-                    this.$message.error(response.data.message || '上传失败');
-                }
+                this.$message.success('提交成功');
+                this.homeworkData = { title: '', content: '' };
+                this.fileList = [];
+                this.$refs.uploadRef.clearFiles();
             } catch (error) {
-                this.$message.error('上传请求失败');
+                this.$message.error('提交失败');
                 console.error('上传错误:', error);
             }
-        },
-
-    },
-}
+        }
+    }
+};
 </script>
+  
+<style scoped>
+.thesis-selection {
+    max-width: 800px;
+    margin: 20px auto;
+}
 
-<style scoped></style>
+.thesis-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.thesis-title {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.thesis-meta {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    color: #666;
+    font-size: 12px;
+}
+
+.empty-tip {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+}
+</style>

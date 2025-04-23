@@ -10,7 +10,7 @@
                 </el-aside>
                 <el-main>
                     <div style="font-size: 30px;font-weight: bold">
-                        欢迎登录管理员端, + {{ dickName }}
+                        欢迎登录管理员端,  {{ dickName }}
                     </div>
                     <hr>
                     <router-view></router-view>

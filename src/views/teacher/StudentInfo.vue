@@ -1,25 +1,39 @@
 <template>
     <div>
-        <el-table :data="tableData" :default-sort="{ prop: 'date', order: 'descending' }" style="width: 100%">
-            <!-- 原有列保持不变 -->
-            <el-table-column sortable prop="account" label="账号" width="180">
-            </el-table-column>
-            <el-table-column prop="userName" label="姓名" width="180">
-            </el-table-column>
-            <el-table-column prop="phone" label="学生电话">
-            </el-table-column>
-            <el-table-column prop="sexName" label="性别">
-            </el-table-column>
+        <!-- 修改后的广播按钮 -->
+        <el-button type="primary" plain @click="handleBroadcast">向全班广播消息</el-button>
 
+        <!-- 新增广播弹窗 -->
+        <el-dialog title="班级广播" :visible.sync="dialogBroadcastVisible" width="30%">
+            <el-form :model="broadcastForm" label-width="80px">
+                <el-form-item label="标题">
+                    <el-input v-model="broadcastForm.title" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="内容">
+                    <el-input type="textarea" :rows="4" v-model="broadcastForm.content" placeholder="请输入广播内容">
+                    </el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogBroadcastVisible = false">取 消</el-button>
+                <el-button type="primary" @click="sendBroadcast">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 原有表格 -->
+        <el-table :data="tableData" :default-sort="{ prop: 'date', order: 'descending' }" style="width: 100%">
+            <el-table-column sortable prop="account" label="账号" width="180"></el-table-column>
+            <el-table-column prop="userName" label="姓名" width="180"></el-table-column>
+            <el-table-column prop="phone" label="学生电话"></el-table-column>
+            <el-table-column prop="sexName" label="性别"></el-table-column>
             <el-table-column label="操作" width="260" fixed="right">
                 <template slot-scope="scope">
-                    <el-button type="primary" @click="handleViewProgress(scope.row)"> 查看论文进度
-                    </el-button>
+                    <el-button type="primary" @click="handleViewProgress(scope.row)">查看论文进度</el-button>
                 </template>
             </el-table-column>
         </el-table>
 
-        <!-- 分页组件保持不变 -->
+        <!-- 分页组件 -->
         <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="page.page"
             :page-sizes="[10, 20, 30, 40]" :page-size="page.pageSize" layout="total, sizes, prev, pager, next, jumper"
             :total="tableData.length">
@@ -28,12 +42,10 @@
         <!-- 历史记录弹窗 -->
         <el-dialog title="论文修改历史" :visible.sync="dialogVisible" width="60%">
             <el-table :data="historyRecords" @row-click="handleHistoryClick" style="cursor: pointer">
-                <el-table-column prop="modificationTime" label="修改时间" width="180">
-                </el-table-column>
-                <el-table-column prop="docId" label="论文Id">
-                </el-table-column>
-                <el-table-column prop="modificationWhat" label="修改标题" width="120">
-                </el-table-column>
+                <el-table-column prop="modificationTime" label="修改时间" width="180"></el-table-column>
+                <el-table-column prop="docId" label="论文Id"></el-table-column>
+                <el-table-column prop="docId" label="论文Id"></el-table-column>
+                <el-table-column prop="modificationWhat" label="修改标题" width="120"></el-table-column>
             </el-table>
         </el-dialog>
     </div>
@@ -41,7 +53,7 @@
 
 <script>
 import { tclassmanagemt, deleteStudent } from "../../api/teacher/teacherclass.js";
-import { mapState } from 'vuex'
+
 import Cookies from 'js-cookie'
 import axios from "axios";
 
@@ -50,25 +62,26 @@ export default {
 
     data() {
         return {
-            // 原有数据保持不变
+            // 新增广播相关数据
+            dialogBroadcastVisible: false,
+            broadcastForm: {
+                title: '',
+                content: '',
+                classId: '',
+                creator: ''
+            },
+
+            // 原有数据
             tableData: [],
             dialogVisible: false,
-            pagination: {         // 分页对象
+            pagination: {
                 page: 1,
                 total: 0
             },
-            historyRecords: [ // 示例数据
-            {
-                modificationTime: '',
-                docId: '',
-                modificationWhat: '',
-            }
-            ],
-            // 其他原有数据...
-            tableData: [],
+            historyRecords: [],
             page: {
-                page: 1, //初始页
-                pageSize: 10,    //    每页的数据
+                page: 1,
+                pageSize: 10,
                 userId: ''
             },
             form: {
@@ -80,49 +93,68 @@ export default {
             formLabelWidth: '120px',
             param: {
                 userId: '',
-            }
+            },
+            classIdList: []
         }
     },
-    created() {
+
+    mounted() {
         this.page.userId = Cookies.get('userId')
         this.listAllClass(this.page)
+        axios.post("http://localhost:9251/study/class/findListByUserId/"+Cookies.get('userId')).then(response => {
+            this.classIdList = response.data.resultData
+        })
     },
+
     methods: {
+        // 新增广播方法
+        async handleBroadcast() {
+            this.dialogBroadcastVisible = true;
+            this.broadcastForm = { title: '', content: '' };
+        },
+
+        async sendBroadcast() {
+            if (!this.broadcastForm.title.trim() || !this.broadcastForm.content.trim()) {
+                this.$message.warning('标题和内容不能为空');
+                return;
+            }
+            console.log('begin')
+            this.broadcastForm.classId = this.classIdList[0]
+            console.log(this.broadcastForm)
+            try {
+
+                const response = await axios.post(
+                    'http://localhost:9251/save/knowledgePoint/save',
+                    this.broadcastForm,
+                    {
+                        headers: { 'Content-Type': 'application/json' },
+                        withCredentials: true // 允许发送凭证
+                    }
+                )
+                console.log(response)
+                // if (response.data.code === 200) {
+                //     this.$message.success('广播发送成功');
+                //     this.dialogBroadcastVisible = false;
+                // } else {
+                //     this.$message.error('发送失败: ' + (response.data.message || ''));
+                // }
+            } catch (error) {
+                console.error('发送失败:', error);
+                this.$message.error('广播发送失败');
+            }
+        },
+
+        // 原有方法保持不变
         async handleViewProgress(row) {
             this.dialogVisible = true;
-
-            console.log(row)
             try {
                 const response = await axios.post(
                     'http://localhost:9251/api/modification/getModification',
-                    {
-                        stuId: row.userId,  //row.userid
-                        page: 1,
-                        pageSize: 10
-                    },
-                    {
-                        headers: { 'Content-Type': 'application/json' }
-                    }
+                    { stuId: row.userId, page: 1, pageSize: 10 },
+                    { headers: { 'Content-Type': 'application/json' } }
                 );
-                console.log(response);
                 this.historyRecords = response.data || [];
-            //     historyRecords: [ // 示例数据
-            //     {
-            //         date: '2023-07-20',
-            //         version: 'v2.1',
-            //         status: '已通过',
-            //         reviewer: '王教授',
-            //         paperId: '123'
-            //     },
-            //     {
-            //         date: '2023-07-18',
-            //         version: 'v2.0',
-            //         status: '需修改',
-            //         reviewer: '李教授',
-            //         paperId: '123'
-            //     }
-            // ],
-                // this.pagination.total = response.data.data.total || 0;
+                console.log(this.historyRecords);
             } catch (error) {
                 console.error('请求异常:', error);
                 this.$message.error('数据加载失败');
@@ -130,63 +162,48 @@ export default {
         },
 
         handleHistoryClick(record) {
-            // 跳转到论文详情页
             console.log('点击了记录：', record);
             localStorage.setItem('docModificationrecord', JSON.stringify(record));
             localStorage.setItem('docId', record.docId);
-            const savedRecord = JSON.parse(localStorage.getItem('docModificationrecord'));
-            this.$router.push({
-                name: 'Detail',
-                query: {
-                    type: "试题"
-                },
-                data1: 'test'
-            })
+            localStorage.setItem('modificationId', record.id);
+            this.$router.push({ name: 'Detail', query: { type: "试题" } });
         },
+
         handleDelete(index, row) {
             this.param.userId = row.userId
             deleteStudent(this.param).then(resp => {
                 if (resp.data.code == 200) {
-                    this.$message({
-                        message: '移除学生成功 ',
-                        type: 'success'
-                    });
-                    this.dialogFormVisibleEdit = true
+                    this.$message.success('移除学生成功');
                     this.listAllClass(this.page)
                 } else {
                     this.$message.error('移除学生失败');
                 }
             })
         },
+
         handleSizeChange(size) {
             this.page.pageSize = size;
-            // console.log(this.pageSize,'888')
             this.listAllClass(this.page)
-            console.log(`每页 ${size} 条`);
         },
+
         handleCurrentChange(pageNum) {
-            this.page.pageNum = pageNum;
+            this.page.page = pageNum;
             this.listAllClass(this.page)
-            console.log(`当前页: ${val}`);
         },
 
         listAllClass(page) {
             tclassmanagemt(page).then(resp => {
                 this.tableData = resp.data.resultData.data
-                console.log(this.tableData)
             })
-        },
-        // 其他原有方法保持不变...
-    },
-    // 其他原有代码...
+        }
+    }
 }
 </script>
 
 <style>
-/* 新增样式 */
 .el-table--enable-row-hover .el-table__body tr:hover>td {
     background-color: #f5f7fa;
 }
 
-/* 原有样式保持不变 */
+/* 其他样式保持不变 */
 </style>

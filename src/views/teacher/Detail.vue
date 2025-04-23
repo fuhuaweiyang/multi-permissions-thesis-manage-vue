@@ -80,7 +80,7 @@ export default {
           'http://localhost:9251/api/marking/save',
           {
             docId: localStorage.getItem('docId'),
-            modificationId: 6,
+            modificationId: localStorage.getItem('modificationId'),
             markingWhat: this.summaryContent,
             marking: jsonAnnotations
           },

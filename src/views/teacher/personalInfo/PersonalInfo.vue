@@ -1,6 +1,30 @@
 <template>
     <div>
-        <router-link to="/pdetailteacher"><el-button type="primary"> 发布知识点</el-button></router-link>
+        <el-button type="primary" @click="dialogVisible = true"> 发布论文选题</el-button>
+        <el-dialog title="发布论文选题" :visible.sync="dialogVisible" width="600px">
+            <el-form :model="form" :rules="rules" ref="knowForm">
+                <el-form-item label="标题" prop="title" label-width="80px">
+                    <el-input v-model="form.title" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="内容" prop="content" label-width="80px">
+                    <el-input type="textarea" :rows="4" v-model="form.content" placeholder="请输入发布论文选题详细内容">
+                    </el-input>
+                </el-form-item>
+
+                <el-form-item label="选择班级" prop="classes" label-width="80px">
+                    <el-checkbox-group v-model="form.selectedClasses">
+                        <el-checkbox v-for="cls in classOptions" :key="cls.id" :label="cls.id">
+                            {{ cls.className }}
+                        </el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+            </el-form>
+
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="submitForm">发 送</el-button>
+            </div>
+        </el-dialog>
         <el-table :data="knowData" style="width: 100%">
             <el-table-column type="expand">
                 <template slot-scope="props">
@@ -23,9 +47,6 @@
                         <el-form-item label="发布时间：">
                             <span>{{ props.row.createTime }}</span>
                         </el-form-item>
-                        <!--                       <el-form-item label="商品描述">-->
-                        <!--                           <span>{{ props.row.desc }}</span>-->
-                        <!--                       </el-form-item>-->
                     </el-form>
                 </template>
             </el-table-column>
@@ -41,7 +62,7 @@
             </el-table-column>
             <el-table-column label="操作" width="260" fixed="right">
                 <template slot-scope="scope">
-                    <el-button @click="EditKnowPoint(scope.$index, scope.row)"  type="success"> 编辑</el-button>
+                    <el-button @click="EditKnowPoint(scope.$index, scope.row)" type="success"> 编辑</el-button>
                     <el-button type="danger" @click="DeleteKnowPoint(scope.$index, scope.row)"> 删除</el-button>
                 </template>
             </el-table-column>
@@ -55,8 +76,10 @@
 </template>
 
 <script>
-import { listKnow, deleteKnow } from "../../../api/personal.js";
+import {  deleteKnow } from "../../../api/personal.js";
+import { pclass } from "../../../api/admin/queryclass";
 import Cookies from 'js-cookie'
+import axios from "axios";
 export default {
     name: "PersonalInfo",
     data() {
@@ -70,15 +93,88 @@ export default {
             knowData: [],
             param: {
                 id: '',
-            }
+            },
+            dialogVisible: false, // 控制弹窗显示
+            form: {
+                title: '',
+                content: '',
+                selectedClasses: [],
+                title: '',
+                classId: '',
+                creator: '',
+            },
+            classOptions: [],
+            rules: {
+                title: [
+                    { required: true, message: '请输入标题', trigger: 'blur' }
+                ],
+                content: [
+                    { required: true, message: '请输入内容', trigger: 'blur' }
+                ],
+                classes: [
+                    { type: 'array', required: true, message: '请至少选择一个班级', trigger: 'change' }
+                ]
+            },
+            param: {
+                userId: '',
+            },
         }
     },
-    created() {
+    mounted() {
         this.page.userId = Cookies.get('userId')
         this.page.roleId = Cookies.get('roleId')
         this.listAllKnow(this.page)
+        this.queryClass(this.page)
     },
     methods: {
+        queryClass(pa) {
+            pclass(pa).then(resp => {
+                this.classOptions = resp.data.resultData
+                console.log(this.classOptions)
+            })
+        },
+
+        async submitForm() {
+            try {
+                const userId = Cookies.get('userId');
+                const selectedClasses = this.form.selectedClasses;
+
+                // 遍历 selectedClasses，每个 classId 调用一次请求
+                for (const classId of selectedClasses) {
+                    const params = {
+                        ...this.form,
+                        classId: classId, // 每次请求只传一个 classId
+                        teacherId: userId,
+                        teacherName: localStorage.getItem('userName'),
+                    };
+                    console.log(params)
+                    axios.post('http://localhost:9251/api/study/thesis/save', params).then(resp=>{
+                        console.log(resp)
+                        if(resp.data.code==200){
+                            this.$router.push("/personalinfo")
+                            this.$message({
+                                message: '发布成功',
+                                type: 'success'
+                            });
+                            this.$router.push("/personalinfo")
+
+
+                        }else {
+                            this.$message.error('发布失败');
+                        }
+                    });
+                }
+
+                // 如果所有请求都成功
+                this.$message.success('全部发布成功');
+                this.dialogVisible = false;
+                this.listAllKnow(this.page); // 刷新列表
+                this.$refs.knowForm.resetFields(); // 重置表单
+            } catch (error) {
+                this.$message.error('发布失败');
+            }
+        },
+
         EditKnowPoint(index, row) {
             this.$router.push({
                 name: 'PDetail',
@@ -103,7 +199,7 @@ export default {
             })
         },
         listAllKnow(page) {
-            listKnow(page).then(resp => {
+            axios.post('http://localhost:9251/api/study/thesis/list', page).then(resp => {
                 this.knowData = resp.data.resultData.data
             })
         },

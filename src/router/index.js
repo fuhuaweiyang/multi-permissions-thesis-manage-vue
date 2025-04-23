@@ -25,14 +25,13 @@ import AdminPersonalInfo from '../views/admin/personalInfo/PersonalInfo.vue'
 import TeacherPersonalInfo from '../views/admin/personalInfo/PersonalInfo.vue'
 import ApplicantHistory from '../views/student/ApplicantHistory.vue'
 import TeacherApplicant from '../views/teacher/TeacherApplicant.vue'
-import PracticeDetail from '../views/student/practice/ModificationList.vue'
-import MarkDownNotHomeWork from '../views/student/MarkDownNotHomeWork.vue'
+import ModificationList from '../views/student/practice/ModificationList.vue'
+import ThesisOnline from '../views/student/ThesisOnline.vue'
 import HomeworkDetail from '../views/admin/adminhomework/HomeworkDetail.vue'
 import TestHomeWork from '../views/admin/testmanagement/TestHomeWork.vue'
 import KnowDetail from '../views/admin/knowledgepoints/KnowDetail.vue'
 import Detail from '../views/teacher/Detail.vue'
 import StudentDetail from '../views/teacher/Detail.vue'
-import PDetail from '../views/teacher/personalInfo/PDetail.vue'
 import Video from '../views/teacher/video/Video.vue'
 import ClassManagementAdmin from '../views/admin/classmanagement/ClassManagement.vue'
 import Subject from '../views/admin/subject/Subject.vue'
@@ -58,14 +57,6 @@ const routes = [
             requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
         },
     }, 
-    {
-        path: '/pdetailteacher',
-        name: 'PDetail',
-        component: PDetail,
-        meta: {
-            requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
-        },
-    },
     {
         path: '/detail',
         name: 'Detail',
@@ -214,9 +205,9 @@ const routes = [
                 },
             },
             {
-                path: '/practicedetail',
-                name: 'PracticeDetail',
-                component: PracticeDetail,
+                path: '/modificationList',
+                name: 'ModificationList',
+                component: ModificationList,
                 meta: {
                     requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
                 },
@@ -230,9 +221,9 @@ const routes = [
                 },
             },
             {
-                path: '/markdownnothomework',
-                name: 'MarkDownNotHomeWork',
-                component: MarkDownNotHomeWork,
+                path: '/thesisOnline',
+                name: 'ThesisOnline',
+                component: ThesisOnline,
                 meta: {
                     requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
                 },

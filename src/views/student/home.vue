@@ -37,6 +37,7 @@
 <script>
 import {stuPointList} from '@/api/admin/knowpoint'
 import Cookies from "js-cookie";
+import axios from 'axios'
 export default {
     name: "home",
     data() {
@@ -46,7 +47,7 @@ export default {
     },
     created() {
         let classId=Cookies.get("classId")
-        stuPointList({classId:classId}).then(res=>{
+        axios.get('http://localhost:9251/api/study/knowledgePoint/stuPointList?classId='+classId,).then(res=>{
             this.points=res.data.resultData
             console.log(this.points);    
         })
