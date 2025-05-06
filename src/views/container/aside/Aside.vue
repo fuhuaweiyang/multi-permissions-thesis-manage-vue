@@ -9,23 +9,15 @@
                 </el-menu-item>
                 <el-menu-item index="/studentinfo">
                     <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>
-                    <span slot="title" style="font-size: 20px;"> 班级信息管理</span>
+                    <span slot="title" style="font-size: 20px;"> 学生信息管理</span>
                 </el-menu-item>
                 <el-menu-item index="/teacherapplicant">
                     <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>
-                    <span slot="title" style="font-size: 20px;"> 申请论文审核</span>
+                    <span slot="title" style="font-size: 20px;"> 论文认证审核</span>
                 </el-menu-item>
                 <el-menu-item index="/scoremanagment">
                     <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>
-                    <span slot="title" style="font-size: 20px;"> 论文批改</span>
-                </el-menu-item>
-                <el-menu-item index="/classmanagement">
-                    <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>
-                    <span slot="title" style="font-size: 20px;"> 论文管理</span>
-                </el-menu-item>
-                <el-menu-item index="/coursemanagement">
-                    <i class="el-icon-menu" style="font-size: 28px;color: white;"></i>
-                    <span slot="title" style="font-size: 20px;"> 问答社区</span>
+                    <span slot="title" style="font-size: 20px;"> 论文批改记录</span>
                 </el-menu-item>
                 <el-menu-item index="/personalinfo">
                     <i class="el-icon-menu" style="font-size: 26px;color: white;"></i>

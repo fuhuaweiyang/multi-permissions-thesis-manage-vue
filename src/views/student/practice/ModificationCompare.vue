@@ -91,7 +91,7 @@ export default {
   computed: {
     // 生成包含批注标记的内容
     annotatedContent() {
-      let content = this.articleContent;
+      let content = this.oldText;
       this.annotations.forEach(anno => {
         const highlight = `<span class="highlight" data-id="${anno.id}">${anno.selectedText}</span>`;
         content = content.replace(anno.selectedText, highlight);

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button @click="test()" type="primary"> 论文批改</el-button>
+        <el-button @click="test()" type="primary"> 论文批改记录</el-button>
         <el-table :data="ScoreData" :default-sort="{ prop: 'date', order: 'descending' }" style="width: 100%">
             <el-table-column sortable fixed prop="createTime" label="发布时间" width="180">
             </el-table-column>
