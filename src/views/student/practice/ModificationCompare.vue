@@ -1,44 +1,67 @@
 <template>
   <div>
-    <el-switch v-model="showDiff" class="ml-2" inline-prompt
-      style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="论文版本显示" inactive-text="论文批注显示" />
-    <div v-if="showDiff" class="diff-page">
-      <!-- 旧版本 -->
-      <div class="diff-column">
-        <div class="header">旧版本</div>
-        <div v-for="(line, index) in oldLines" :key="'old-' + index" class="line"
-          :class="{ 'deleted': line.type === 'removed' }">
-          <span class="line-number">{{ line.oldNum || ' ' }}</span>
-          <span class="content">{{ line.content }}</span>
+    <div style="position: fixed; left: 50%; transform: translateX(-50%); margin: 10px; z-index: 10;">
+      <el-switch v-model="showDiff" class="ml-2" inline-prompt
+        style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949;" active-text="论文版本显示"
+        inactive-text="新版本论文批注显示" />
+    </div>
+    <div style="margin-top: 40px;">
+      <div v-if="showDiff" class="diff-page-wrapper">
+        <!-- 新旧版本对比区（占比 60%） -->
+        <div class="diff-page">
+          <!-- 旧版本 -->
+          <div class="diff-column">
+            <div class="header">旧版本</div>
+            <div class="lines">
+              <span v-for="(line, index) in oldLines" :key="'old-' + index" class="line"
+                :class="{ deleted: line.type === 'removed' }">
+                <div v-if="line.type === 'enter'"><br /></div>
+                <span v-else class="content">{{ line.content }}</span>
+              </span>
+            </div>
+          </div>
+          <!-- 新版本 -->
+          <div class="diff-column">
+            <div class="header">新版本</div>
+            <div class="lines">
+              <span v-for="(line, index) in newLines" :key="'new-' + index" class="line"
+                :class="{ added: line.type === 'added' }">
+                <div v-if="line.type === 'enter'"><br /></div>
+                <span v-else class="content">{{ line.content }}</span>
+              </span>
+            </div>
+          </div>
         </div>
+        <!-- 旧版本批准查看区（占比 30%） -->
+        <!-- 旧版本批准查看区（占比 30%），展示旧版本批注 comment -->
+        <div class="comparison-result">
+          <div class="header">旧版本批准查看</div>
+          <div class="comparison-body">
+            <div v-for="anno in annotations" :key="anno.id" class="annotation-item">
+              <!-- 只展示 comment，点击后滚动到旧版本 diff 中对应 selectedText -->
+              <span class="highlight" @click="scrollToOld(anno)">{{ anno.comment }}</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- 新版本 -->
-      <div class="diff-column">
-        <div class="header">新版本</div>
-        <div v-for="(line, index) in newLines" :key="'new-' + index" class="line"
-          :class="{ 'added': line.type === 'added' }">
-          <span class="line-number">{{ line.newNum || ' ' }}</span>
-          <span class="content">{{ line.content }}</span>
-        </div>
-      </div>
-    </div>
-    <div v-else class="container">
-      <!-- 文章内容区域 -->
-      <div class="article-content" @mouseup="handleTextSelection" v-html="annotatedContent"></div>
-      <!-- 批注展示 -->
-      <div class="annotations-list">
-        <div v-for="(annotation, index) in annotations" :key="index" class="annotation-item">
-          <span class="highlight" @click="scrollToAnnotation(annotation)">
-            {{ annotation.selectedText }}
-          </span>
-          <div class="comment">{{ annotation.comment }}</div>
+      <!-- 论文批注显示 -->
+      <div v-else class="container">
+        <div class="article-content" @mouseup="handleTextSelection" v-html="annotatedContent"></div>
+        <div class="annotations-list">
+          <div v-for="(annotation, index) in annotations" :key="index" class="annotation-item">
+            <span class="highlight" @click="scrollToAnnotation(annotation)">
+              {{ annotation.selectedText }}
+            </span>
+            <div class="comment">{{ annotation.comment }}</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-  
+
 <script>
 import { diff_match_patch } from '../../../api/diff_match_patch'
 import axios from 'axios';
@@ -75,50 +98,60 @@ export default {
       });
       return content;
     },
-
     // 序列化批注信息
     serializedAnnotations() {
       return JSON.stringify(this.annotations);
     }
   },
   methods: {
+    scrollToOld(annotation) {
+      const contentEls = this.$el.querySelectorAll('.diff-page .diff-column:first-child .content');
+      for (const el of contentEls) {
+        if (el.textContent.includes(annotation.selectedText)) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('temp-highlight');
+          setTimeout(() => el.classList.remove('temp-highlight'), 2000);
+          break;
+        }
+      }
+    },
     async loadData() {
       try {
         const modification = JSON.parse(localStorage.getItem('modification'))
+        const prevModification = JSON.parse(localStorage.getItem('prevModification'))
         console.log(modification)
         const response = await axios.get(
           'http://localhost:9251/api/modification/getDocByModificationId/' + modification.docId + '/' + modification.id,
         );
-        console.log(response);
+        const modificationList = response.data.resultData
         this.patchText = response.data.modification
+        console.log(modificationList)
         const response2 = await axios.get(
           'http://localhost:9251/api/docs/' + modification.docId,
         );
         this.oldText = response2.data.txt
+        let newText = response2.data.txt
         this.articleContent = response2.data.txt
-        console.log(response2);
-        console.log('原始补丁:', this.patchText)
-        console.log('原始文本', this.oldText)
-        const patches = this.dmp.patch_fromText(this.patchText)
         try {
           const response3 = await axios.get(
-            'http://localhost:9251/api/marking/getByDocId/' + modification.docId,
+            'http://localhost:9251/api/marking/getByModificationId/' + prevModification.id,
           );
-          console.log(modification.docId);
-          console.log(response3)
           this.annotations = JSON.parse(response3.data.marking)
+          console.log('this.annotations')
+          console.log(this.annotations)
         } catch (error) {
           console.log(error)
         }
-        console.log(this.annotations)
-        // 应用补丁并验证结果
-        const [newText, results] = this.dmp.patch_apply(patches, this.oldText)
-        if (results.some(success => !success)) {
-          throw new Error('部分补丁应用失败')
+        for (let i = modificationList.length - 1; i >= 0; i--) {
+          const data = modificationList[i];
+          const patches = this.dmp.patch_fromText(data.modification);
+          const [nextText, results] = this.dmp.patch_apply(patches, newText);
+          this.oldText = newText
+          newText = nextText;
+          if (results.some(success => !success)) {
+            throw new Error('部分补丁应用失败');
+          }
         }
-
-        // console.log('应用补丁后的新文本:', newText)
-
         // 生成标准差异
         const diffs = this.dmp.diff_main(this.oldText, newText)
         this.dmp.diff_cleanupSemantic(diffs)  // 优化差异显示
@@ -132,34 +165,6 @@ export default {
         this.$message.error('数据加载失败');
       }
     },
-    // async processDiff() {
-    //     try {
-    //         // 解析补丁
-    //         console.log('原始补丁:', this.patchText)
-    //         console.log('原始文本', this.oldText)
-    //         const patches = this.dmp.patch_fromText(this.patchText)
-
-    //         // 应用补丁并验证结果
-    //         const [newText, results] = this.dmp.patch_apply(patches, this.oldText)
-    //         if (results.some(success => !success)) {
-    //             throw new Error('部分补丁应用失败')
-    //         }
-
-    //         console.log('应用补丁后的新文本:', newText)
-
-    //         // 生成标准差异
-    //         const diffs = this.dmp.diff_main(this.oldText, newText)
-    //         this.dmp.diff_cleanupSemantic(diffs)  // 优化差异显示
-
-    //         console.log('标准差异:', !Array.isArray(diffs), !Array.isArray(diffs) || diffs.length < 2)
-    //         // 处理差异结果
-    //         this.generateLines(diffs)
-    //     } catch (error) {
-    //         console.error('处理差异失败:', error)
-    //         this.$message.error(`版本对比失败: ${error.message}`)
-    //     }
-    // },
-
     generateLines(diffs) {
       let oldLineNum = 1
       let newLineNum = 1
@@ -169,22 +174,9 @@ export default {
       console.log(diffs)
       // 安全遍历差异
       diffs.forEach(diff => {
-        // 添加类型检查
-        // if (!Array.isArray(diff) || diff.length < 2) 
-        // {
-        //     console.log('未安全通过类型检查', diff)
-        //     return
-        // }
-        // console.log('安全通过类型检查', diff[0])
-
         const type = diff[0]
         const content = diff[1]
 
-
-        // console.log('处理差异:', content)
-        // console.log('this.dmp.DIFF_DELETE:', this.dmp.DIFF_DELETE)
-        // console.log('this.dmp.DIFF_INSERT:', this.dmp.DIFF_INSERT)
-        // console.log('this.dmp.DIFF_EQUAL:', this.dmp.DIFF_EQUAL)
         const lines = content.split('\n').filter(l => l !== '')
 
         console.log('处理差异:', lines)
@@ -222,14 +214,63 @@ export default {
       })
       this.oldLines = oldLines
       this.newLines = newLines
+      this.oldLines = this.splitByNewline(this.oldLines)
+      this.newLines = this.splitByNewline(this.newLines)
+    },
+    splitByNewline(items) {
+      const result = [];
+      let counter = 0;
+
+      // 如果输入数组中已有 newNum，就从最大的开始+1，否则从1开始
+      if (items.length > 0) {
+        const maxNum = Math.max(...items.map(it => it.newNum));
+        counter = maxNum + 1;
+      } else {
+        counter = 1;
+      }
+
+      // 正则：匹配所有换行表现
+      const newlineRe = /(\r\n|\r|\n)/;
+
+      items.forEach(item => {
+        const { content, type } = item;
+
+        // 如果内容中没有换行，直接原封不动推入
+        if (!newlineRe.test(content)) {
+          result.push({ content, newNum: counter++, type });
+          return;
+        }
+
+        // 否则先按换行分割并保留分隔符
+        const parts = content.split(newlineRe);
+
+        parts.forEach(token => {
+          if (newlineRe.test(token)) {
+            // 遇到换行符，插入一个空 content 的 enter 元素
+            result.push({
+              content: '',
+              newNum: counter++,
+              type: 'enter'
+            });
+          } else if (token.length > 0) {
+            // 普通文本段落
+            result.push({
+              content: token,
+              newNum: counter++,
+              type: type  // 保持原来元素的 type，比如 'same'
+            });
+          }
+          // 如果 token 既不是换行也为空串，就跳过
+        });
+      });
+
+      return result;
     },
     handleTextSelection() {
       const selection = window.getSelection();
       if (!selection.rangeCount) return;
-
       const range = selection.getRangeAt(0);
       const selectedText = range.toString().trim();
-
       if (selectedText) {
         this.selectedText = selectedText;
         this.selectedRange = range;
@@ -314,17 +355,14 @@ export default {
   }
 }
 </script>
-  
+
 <style scoped>
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
   overflow: auto;
-}
-
-div {
-  box-sizing: border-box;
 }
 
 :host {
@@ -332,23 +370,33 @@ div {
   height: 100%;
 }
 
-.diff-page,
-.container {
-  overflow-y: auto;
-  max-height: 90vh;
+.diff-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  /* 总高度可以根据需要留白，这里默认撑满剩余 */
+  height: calc(100vh - 60px);
+  /* 减去顶部开关的高度和 margin */
 }
 
+/* 新旧版本对比区：60% 视口高度 */
 .diff-page {
   display: flex;
   gap: 20px;
-  padding: 20px;
+  flex: 6;
+  /* 60% */
+  overflow: hidden;
+  /* 由子元素滚动 */
   font-family: monospace;
 }
 
 .diff-column {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #e1e4e8;
   border-radius: 6px;
+  overflow-y: auto;
+  /* 各自独立滚动 */
 }
 
 .header {
@@ -359,15 +407,7 @@ div {
 }
 
 .line {
-  display: flex;
-  padding: 2px 10px;
-}
-
-.line-number {
-  min-width: 40px;
-  color: rgba(27, 31, 35, .3);
-  padding-right: 10px;
-  user-select: none;
+  display: inline;
 }
 
 .deleted {
@@ -382,6 +422,26 @@ div {
   white-space: pre-wrap;
 }
 
+/* 旧版本批准查看框：30% 视口高度 */
+.comparison-result {
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  background: #fefefe;
+
+  height: 30vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 比较内容区内边距 */
+.comparison-body {
+  padding: 10px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 以下为批注显示样式（不变） */
 .container {
   display: flex;
   margin: 0 auto;
@@ -392,11 +452,24 @@ div {
   padding: 20px;
   line-height: 1.6;
   border-right: 1px solid #ccc;
+  overflow-y: auto;
+  max-height: calc(100vh - 60px);
+}
+
+.comparison-result {
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  background: #fefefe;
+  /* height: 30vh; */
+  display: flex;
+  flex-direction: column;
 }
 
 .annotations-list {
   flex: 1;
   padding: 20px;
+  overflow-y: auto;
+  max-height: calc(100vh - 60px);
 }
 
 .highlight {
@@ -404,21 +477,13 @@ div {
   cursor: pointer;
 }
 
-.annotation-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
 .annotation-item {
   margin-bottom: 15px;
   padding: 10px;
   border: 1px solid #eee;
 }
+.temp-highlight {
+  background-color: #90ee90 !important;
+}
+
 </style>

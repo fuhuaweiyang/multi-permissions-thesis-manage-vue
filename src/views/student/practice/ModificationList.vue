@@ -58,10 +58,10 @@ export default {
                     }
                 );
                 console.log({
-                        stuId: Number(Cookies.get('userId')),
-                        page: this.pagination.page,
-                        pageSize: this.pagination.pageSize
-                    })
+                    stuId: Number(Cookies.get('userId')),
+                    page: this.pagination.page,
+                    pageSize: this.pagination.pageSize
+                })
                 console.log(response);
                 this.modificationList = response.data || [];
                 // this.pagination.total = response.data.data.total || 0;
@@ -73,8 +73,20 @@ export default {
 
         // 查看详情
         handleDetail(row) {
-            console.log(row);
+            console.log('当前行数据：', row);
+
+            // 在 modificationList 中查找当前行所在索引
+            const idx = this.modificationList.findIndex(item => item.id === row.id);
+
+            // 计算前一个元素的索引
+            const prevIdx = idx > 0 ? idx - 1 : -1;
+
+            // 存在前一个元素，则取出并保存
+            const prevRow = this.modificationList[prevIdx];
+            console.log('前一个元素：', prevRow);
+            localStorage.setItem('prevModification', JSON.stringify(prevRow));
             localStorage.setItem('modification', JSON.stringify(row));
+            // 跳转到对比页面
             this.$router.push({
                 name: 'ModificationCompare',
             });

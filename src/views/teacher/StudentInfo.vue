@@ -101,7 +101,7 @@ export default {
     mounted() {
         this.page.userId = Cookies.get('userId')
         this.listAllClass(this.page)
-        axios.post("http://localhost:9251/study/class/findListByUserId/"+Cookies.get('userId')).then(response => {
+        axios.post("http://localhost:9251/study/class/findListByUserId/" + Cookies.get('userId')).then(response => {
             this.classIdList = response.data.resultData
         })
     },
@@ -163,7 +163,20 @@ export default {
 
         handleHistoryClick(record) {
             console.log('点击了记录：', record);
-            localStorage.setItem('docModificationrecord', JSON.stringify(record));
+            const idx = this.historyRecords.findIndex(item => item.id === record.id);
+
+            // 计算前一个元素的索引
+            const prevIdx = idx > 0 ? idx - 1 : -1;
+
+            // 存在前一个元素，则取出并保存
+            const prevRow = this.historyRecords[prevIdx];
+            console.log('前一个元素：', prevRow);
+            localStorage.setItem('prevModification', JSON.stringify(prevRow));
+            localStorage.setItem('modification', JSON.stringify(record));
+            // 跳转到对比页面
+            this.$router.push({
+                name: 'ModificationCompare',
+            });
             localStorage.setItem('docId', record.docId);
             localStorage.setItem('modificationId', record.id);
             this.$router.push({ name: 'Detail', query: { type: "试题" } });
