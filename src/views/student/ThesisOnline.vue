@@ -24,8 +24,6 @@
 
     <!-- 作业提交页面 -->
     <div v-else style="padding: 20px;">
-      <el-button type="danger" @click="goOthers()">返回</el-button>
-      <el-button type="success" @click="submit">提交</el-button>
 
       <el-input v-model="homeworkData.title" placeholder="请输入标题" style="margin-bottom: 10px;"></el-input>
       <el-input v-model="homeworkData.content" placeholder="请输入内容" type="textarea"
@@ -33,16 +31,18 @@
 
       <el-upload class="upload-demo" drag :auto-upload="false" :multiple="true" :on-change="handleFileChange"
         :before-remove="handleFileRemove" ref="uploadRef">
-        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-        <div class="el-upload__text">
-          将文件拖到此处或<em>点击上传</em>
+        <el-icon class="el-icon--upload" ><upload-filled /></el-icon>
+        <div class="el-upload__text" style="font-size: 20px;">
+          将文件拖到此处或<em style="font-size: 20px;">点击上传</em>
         </div>
         <template #tip>
-          <div class="el-upload__tip">
-            仅支持500kb以下的doc/docx文件
+          <div class="el-upload__tip" style="font-size: 20px;">
+            仅支持doc/docx文件
           </div>
         </template>
       </el-upload>
+      <el-button type="danger" @click="goOthers()">返回</el-button>
+      <el-button type="success" @click="submit">提交</el-button>
     </div>
   </div>
 </template>

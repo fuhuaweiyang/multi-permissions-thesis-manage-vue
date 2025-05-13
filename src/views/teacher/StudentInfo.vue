@@ -124,7 +124,7 @@ export default {
             try {
 
                 const response = await axios.post(
-                    'http://localhost:9251/save/knowledgePoint/save',
+                    'http://localhost:9251/api/study/knowledgePoint/save',
                     this.broadcastForm,
                     {
                         headers: { 'Content-Type': 'application/json' },

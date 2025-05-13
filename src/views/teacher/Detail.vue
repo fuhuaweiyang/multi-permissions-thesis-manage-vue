@@ -83,7 +83,6 @@ export default {
   },
   mounted() {
     this.loadData();
-    this.processDiff()
 
   },
   computed: {
@@ -132,7 +131,6 @@ export default {
     async loadData() {
       try {
         const modification = JSON.parse(localStorage.getItem('modification'))
-        const prevModification = JSON.parse(localStorage.getItem('prevModification'))
         console.log(modification)
         const response = await axios.get(
           'http://localhost:9251/api/modification/getDocByModificationId/' + modification.docId + '/' + modification.id,
@@ -195,7 +193,6 @@ export default {
 
     saveAnnotation() {
       if (!this.commentInput) return;
-
       // 计算 occurrence
       const allMatches = Array.from(this.articleContent.matchAll(new RegExp(this.escapeRegExp(this.selectedText), 'g')))
       // 计算选区在全文中的起始偏移
@@ -212,7 +209,6 @@ export default {
           break
         }
       }
-
       const newAnnotation = {
         id: Date.now(),
         selectedText: this.selectedText,
@@ -220,7 +216,6 @@ export default {
         occurrence,     // 第几处匹配
         // 你还可以保存 startContainerPath / offset 等  
       };
-
       this.annotations.push(newAnnotation);
       this.clearSelection();
     },

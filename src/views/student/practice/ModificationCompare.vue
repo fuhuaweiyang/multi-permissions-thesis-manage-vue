@@ -85,7 +85,6 @@ export default {
   },
   mounted() {
     this.loadData()
-    this.processDiff()
 
   },
   computed: {
